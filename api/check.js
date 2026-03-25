@@ -1,5 +1,6 @@
 import { checkTarget } from "../lib/check.js";
 import { resolveExecutionLocation } from "../lib/execution-location.js";
+import { resolveTargetLocation } from "../lib/target-location.js";
 
 function extractTarget(req) {
   const queryTarget = req?.query?.target;
@@ -26,6 +27,7 @@ function extractTarget(req) {
 
 export async function handleCheckRequest(req, deps = {}) {
   const runCheck = deps.checkTarget ?? checkTarget;
+  const runTargetLocation = deps.resolveTargetLocation ?? resolveTargetLocation;
   const serviceLocation = resolveExecutionLocation({
     headers: req?.headers,
     env: deps.env ?? process.env
@@ -40,13 +42,17 @@ export async function handleCheckRequest(req, deps = {}) {
   }
 
   try {
-    const result = await runCheck(target, deps);
+    const [result, targetLocation] = await Promise.all([
+      runCheck(target, deps),
+      runTargetLocation(target, deps)
+    ]);
 
     return {
       statusCode: 200,
       body: {
         ...result,
-        serviceLocation
+        serviceLocation,
+        targetLocation
       }
     };
   } catch (error) {
@@ -54,7 +60,12 @@ export async function handleCheckRequest(req, deps = {}) {
       statusCode: 500,
       body: {
         error: error?.message || "Request failed",
-        serviceLocation
+        serviceLocation,
+        targetLocation: {
+          kind: "unknown",
+          ip: null,
+          displayLabel: "Unknown location"
+        }
       }
     };
   }

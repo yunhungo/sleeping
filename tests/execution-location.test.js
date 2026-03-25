@@ -21,6 +21,15 @@ test("resolveExecutionLocation parses x-vercel-id when present", () => {
   assert.equal(result.locationLabel, "San Francisco, USA");
 });
 
+test("resolveExecutionLocation prefers the last region-like token in x-vercel-id", () => {
+  const result = resolveExecutionLocation({
+    headers: { "x-vercel-id": "iad1::abc123::sfo1" }
+  });
+
+  assert.equal(result.regionCode, "sfo1");
+  assert.equal(result.locationLabel, "San Francisco, USA");
+});
+
 test("resolveExecutionLocation falls back to local unknown when missing", () => {
   const result = resolveExecutionLocation();
 

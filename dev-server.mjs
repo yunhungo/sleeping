@@ -3,6 +3,7 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { handleCheckRequest } from "./api/check.js";
+import { handleMetaRequest } from "./api/meta.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,6 +57,17 @@ const server = http.createServer(async (req, res) => {
       method: req.method,
       query: Object.fromEntries(url.searchParams),
       body: parsedBody
+    });
+
+    send(res, result.statusCode, JSON.stringify(result.body), {
+      "Content-Type": "application/json; charset=utf-8"
+    });
+    return;
+  }
+
+  if (url.pathname === "/api/meta") {
+    const result = await handleMetaRequest({
+      headers: req.headers
     });
 
     send(res, result.statusCode, JSON.stringify(result.body), {

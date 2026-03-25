@@ -26,7 +26,12 @@ test("handleCheckRequest forwards the target to the checker", async () => {
       checkTarget: async (target) => {
         seenTarget = target;
         return { ok: true };
-      }
+      },
+      resolveTargetLocation: async () => ({
+        kind: "public",
+        ip: "93.184.216.34",
+        displayLabel: "Los Angeles, California, United States"
+      })
     }
   );
 
@@ -51,11 +56,37 @@ test("handleCheckRequest includes execution location", async () => {
       body: {}
     },
     {
-      checkTarget: async () => ({ ok: true })
+      checkTarget: async () => ({ ok: true }),
+      resolveTargetLocation: async () => ({
+        kind: "public",
+        ip: "93.184.216.34",
+        displayLabel: "Los Angeles, California, United States"
+      })
     }
   );
 
   assert.equal(result.statusCode, 200);
   assert.equal(result.body.serviceLocation.regionCode, "iad1");
   assert.equal(result.body.serviceLocation.locationLabel, "Washington, D.C., USA");
+});
+
+test("handleCheckRequest includes target location", async () => {
+  const result = await handleCheckRequest(
+    {
+      method: "GET",
+      query: { target: "example.com" },
+      body: {}
+    },
+    {
+      checkTarget: async () => ({ ok: true }),
+      resolveTargetLocation: async () => ({
+        kind: "public",
+        ip: "93.184.216.34",
+        displayLabel: "Los Angeles, California, United States"
+      })
+    }
+  );
+
+  assert.equal(result.statusCode, 200);
+  assert.equal(result.body.targetLocation.displayLabel, "Los Angeles, California, United States");
 });

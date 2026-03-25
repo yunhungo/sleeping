@@ -11,6 +11,7 @@ const metricElapsed = document.querySelector("#metric-elapsed");
 const metricUrl = document.querySelector("#metric-url");
 const targetLocation = document.querySelector("#target-location");
 const detailTarget = document.querySelector("#detail-target");
+const detailTargetLocation = document.querySelector("#detail-target-location");
 const detailErrorType = document.querySelector("#detail-error-type");
 const detailError = document.querySelector("#detail-error");
 const copyLinkButton = document.querySelector("#copy-link");
@@ -93,6 +94,7 @@ function showResult(result, originalTarget) {
   resultEl.classList.remove("hidden");
   lastTarget = originalTarget;
   detailTarget.textContent = originalTarget;
+  detailTargetLocation.textContent = result.targetLocation?.displayLabel ?? "-";
   resultTitle.textContent = result.ok ? "请求成功" : "请求完成但返回异常";
   metricReachable.textContent = formatReachable(result);
   metricStatus.textContent = result.statusCode ?? "-";
@@ -119,7 +121,7 @@ function showResult(result, originalTarget) {
   setStatus(`请求失败：${result.errorType || "unknown"}`, "error");
 }
 
-function showError(message, serviceLocation) {
+function showError(message, serviceLocation, targetLocation) {
   resultEl.classList.remove("hidden");
   setBadge("error", "error");
   resultTitle.textContent = "检查失败";
@@ -127,6 +129,7 @@ function showError(message, serviceLocation) {
   metricStatus.textContent = "-";
   metricElapsed.textContent = "-";
   metricUrl.textContent = "-";
+  detailTargetLocation.textContent = targetLocation?.displayLabel || "-";
   syncTargetLocation(serviceLocation);
   detailTarget.textContent = lastTarget || "-";
   detailErrorType.textContent = "-";
@@ -141,6 +144,7 @@ function setLoading(isLoading) {
 }
 
 async function runCheck(target) {
+  writeLastTarget(target);
   setLoading(true);
   setStatus("正在检查外部可达性...", "loading");
 
@@ -156,7 +160,7 @@ async function runCheck(target) {
     const payload = await response.json();
 
     if (!response.ok) {
-      showError(payload?.error || "Request failed", payload?.serviceLocation);
+      showError(payload?.error || "Request failed", payload?.serviceLocation, payload?.targetLocation);
       return;
     }
 
@@ -172,6 +176,16 @@ function buildShareUrl(target) {
   const url = new URL(window.location.href);
   url.searchParams.set("target", target);
   return url.toString();
+}
+
+async function hydrateServiceLocation() {
+  try {
+    const response = await fetch("/api/meta");
+    const payload = await response.json();
+    syncTargetLocation(payload?.serviceLocation);
+  } catch {
+    syncTargetLocation();
+  }
 }
 
 form.addEventListener("submit", (event) => {
@@ -213,6 +227,7 @@ resetButton.addEventListener("click", () => {
   targetInput.value = "";
   lastTarget = "";
   resultEl.classList.add("hidden");
+  detailTargetLocation.textContent = "-";
   syncTargetLocation();
   setStatus("准备好了，输入一个地址开始检测。", "idle");
   targetInput.focus();
@@ -221,7 +236,7 @@ resetButton.addEventListener("click", () => {
 const initialTarget = new URLSearchParams(window.location.search).get("target");
 
 hydrateFromHistory();
-syncTargetLocation();
+hydrateServiceLocation();
 
 if (initialTarget) {
   targetInput.value = initialTarget;

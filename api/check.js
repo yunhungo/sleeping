@@ -1,4 +1,5 @@
 import { checkTarget } from "../lib/check.js";
+import { resolveExecutionLocation } from "../lib/execution-location.js";
 
 function extractTarget(req) {
   const queryTarget = req?.query?.target;
@@ -25,12 +26,16 @@ function extractTarget(req) {
 
 export async function handleCheckRequest(req, deps = {}) {
   const runCheck = deps.checkTarget ?? checkTarget;
+  const serviceLocation = resolveExecutionLocation({
+    headers: req?.headers,
+    env: deps.env ?? process.env
+  });
   const target = extractTarget(req);
 
   if (!target.trim()) {
     return {
       statusCode: 400,
-      body: { error: "Target is required" }
+      body: { error: "Target is required", serviceLocation }
     };
   }
 
@@ -39,13 +44,17 @@ export async function handleCheckRequest(req, deps = {}) {
 
     return {
       statusCode: 200,
-      body: result
+      body: {
+        ...result,
+        serviceLocation
+      }
     };
   } catch (error) {
     return {
       statusCode: 500,
       body: {
-        error: error?.message || "Request failed"
+        error: error?.message || "Request failed",
+        serviceLocation
       }
     };
   }

@@ -32,5 +32,30 @@ test("handleCheckRequest forwards the target to the checker", async () => {
 
   assert.equal(seenTarget, "example.com");
   assert.equal(result.statusCode, 200);
-  assert.deepEqual(result.body, { ok: true });
+  assert.deepEqual(result.body.ok, true);
+  assert.deepEqual(result.body.serviceLocation, {
+    regionCode: null,
+    locationLabel: "Local / Unknown",
+    displayLabel: "Local / Unknown"
+  });
+});
+
+test("handleCheckRequest includes execution location", async () => {
+  const result = await handleCheckRequest(
+    {
+      method: "GET",
+      query: { target: "example.com" },
+      headers: {
+        "x-vercel-id": "iad1::abc123"
+      },
+      body: {}
+    },
+    {
+      checkTarget: async () => ({ ok: true })
+    }
+  );
+
+  assert.equal(result.statusCode, 200);
+  assert.equal(result.body.serviceLocation.regionCode, "iad1");
+  assert.equal(result.body.serviceLocation.locationLabel, "Washington, D.C., USA");
 });

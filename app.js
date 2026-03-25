@@ -9,6 +9,7 @@ const metricReachable = document.querySelector("#metric-reachable");
 const metricStatus = document.querySelector("#metric-status");
 const metricElapsed = document.querySelector("#metric-elapsed");
 const metricUrl = document.querySelector("#metric-url");
+const metricLocation = document.querySelector("#metric-location");
 const detailTarget = document.querySelector("#detail-target");
 const detailErrorType = document.querySelector("#detail-error-type");
 const detailError = document.querySelector("#detail-error");
@@ -54,6 +55,7 @@ function showResult(result, originalTarget) {
   metricStatus.textContent = result.statusCode ?? "-";
   metricElapsed.textContent = formatElapsed(result.elapsedMs);
   metricUrl.textContent = result.finalUrl ?? "-";
+  metricLocation.textContent = result.serviceLocation?.displayLabel ?? "-";
   detailErrorType.textContent = result.errorType ?? "-";
   detailError.textContent = result.error ?? "-";
 
@@ -73,7 +75,7 @@ function showResult(result, originalTarget) {
   setStatus(`请求失败：${result.errorType || "unknown"}`, "error");
 }
 
-function showError(message) {
+function showError(message, serviceLocation) {
   resultEl.classList.remove("hidden");
   setBadge("error", "error");
   resultTitle.textContent = "检查失败";
@@ -81,6 +83,7 @@ function showError(message) {
   metricStatus.textContent = "-";
   metricElapsed.textContent = "-";
   metricUrl.textContent = "-";
+  metricLocation.textContent = serviceLocation?.displayLabel ?? "-";
   detailTarget.textContent = lastTarget || "-";
   detailErrorType.textContent = "-";
   detailError.textContent = message;
@@ -109,7 +112,8 @@ async function runCheck(target) {
     const payload = await response.json();
 
     if (!response.ok) {
-      throw new Error(payload?.error || "Request failed");
+      showError(payload?.error || "Request failed", payload?.serviceLocation);
+      return;
     }
 
     showResult(payload, target);

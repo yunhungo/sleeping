@@ -17,8 +17,51 @@ const copyLinkButton = document.querySelector("#copy-link");
 const resetButton = document.querySelector("#reset-button");
 
 const chips = [...document.querySelectorAll(".chip")];
+const LAST_TARGET_KEY = "sleeping_any_where_last_target";
 
 let lastTarget = "";
+
+function safeStorage() {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+function readLastTarget() {
+  const storage = safeStorage();
+  if (!storage) {
+    return "";
+  }
+
+  try {
+    return String(storage.getItem(LAST_TARGET_KEY) || "").trim();
+  } catch {
+    return "";
+  }
+}
+
+function writeLastTarget(target) {
+  const storage = safeStorage();
+  if (!storage) {
+    return;
+  }
+
+  storage.setItem(LAST_TARGET_KEY, String(target || "").trim());
+}
+
+function syncTargetLocation(serviceLocation) {
+  targetLocation.textContent = `（当前位置: ${serviceLocation?.displayLabel ?? "Local / Unknown"}）`;
+}
+
+function hydrateFromHistory() {
+  const lastStoredTarget = readLastTarget();
+
+  if (!new URLSearchParams(window.location.search).get("target") && lastStoredTarget) {
+    targetInput.value = lastStoredTarget;
+  }
+}
 
 function setStatus(message, tone = "idle") {
   statusEl.className = `status ${tone}`;
@@ -46,10 +89,6 @@ function formatElapsed(ms) {
   return `${ms} ms`;
 }
 
-function formatServiceLocation(serviceLocation) {
-  return `（当前位置: ${serviceLocation?.displayLabel ?? "Local / Unknown"}）`;
-}
-
 function showResult(result, originalTarget) {
   resultEl.classList.remove("hidden");
   lastTarget = originalTarget;
@@ -59,11 +98,12 @@ function showResult(result, originalTarget) {
   metricStatus.textContent = result.statusCode ?? "-";
   metricElapsed.textContent = formatElapsed(result.elapsedMs);
   metricUrl.textContent = result.finalUrl ?? "-";
-  targetLocation.textContent = formatServiceLocation(result.serviceLocation);
+  syncTargetLocation(result.serviceLocation);
   detailErrorType.textContent = result.errorType ?? "-";
   detailError.textContent = result.error ?? "-";
 
   if (result.ok) {
+    writeLastTarget(originalTarget);
     setBadge("success", "reachable");
     setStatus(`目标可达，${result.statusCode}，耗时 ${result.elapsedMs} ms`, "success");
     return;
@@ -87,7 +127,7 @@ function showError(message, serviceLocation) {
   metricStatus.textContent = "-";
   metricElapsed.textContent = "-";
   metricUrl.textContent = "-";
-  targetLocation.textContent = formatServiceLocation(serviceLocation);
+  syncTargetLocation(serviceLocation);
   detailTarget.textContent = lastTarget || "-";
   detailErrorType.textContent = "-";
   detailError.textContent = message;
@@ -173,17 +213,19 @@ resetButton.addEventListener("click", () => {
   targetInput.value = "";
   lastTarget = "";
   resultEl.classList.add("hidden");
-  targetLocation.textContent = formatServiceLocation();
+  syncTargetLocation();
   setStatus("准备好了，输入一个地址开始检测。", "idle");
   targetInput.focus();
 });
 
 const initialTarget = new URLSearchParams(window.location.search).get("target");
 
+hydrateFromHistory();
+syncTargetLocation();
+
 if (initialTarget) {
   targetInput.value = initialTarget;
   runCheck(initialTarget);
 } else {
-  targetLocation.textContent = formatServiceLocation();
   setStatus("准备好了，输入一个地址开始检测。", "idle");
 }

@@ -23,19 +23,19 @@
 
       <section class="panel">
         <form id="check-form" class="checker" autocomplete="off">
-          <label for="target">目标地址</label>
+          <label for="target" class="target-label">
+            <span>目标地址</span>
+            <span id="target-location" class="target-location">（当前位置: Local / Unknown）</span>
+          </label>
           <div class="input-row">
-            <div class="target-field">
-              <input
-                id="target"
-                name="target"
-                type="text"
-                placeholder="google.com 或 https://www.baidu.com"
-                inputmode="url"
-                spellcheck="false"
-              />
-              <span id="target-location" class="target-location">（当前位置: Local / Unknown）</span>
-            </div>
+            <input
+              id="target"
+              name="target"
+              type="text"
+              placeholder="google.com 或 https://www.baidu.com"
+              inputmode="url"
+              spellcheck="false"
+            />
             <button id="submit-button" type="submit">开始检查</button>
           </div>
         </form>
@@ -43,9 +43,6 @@
         <div class="chips" aria-label="Example targets">
           <button class="chip" type="button" data-target="https://www.google.com">Google</button>
           <button class="chip" type="button" data-target="https://www.baidu.com">Baidu</button>
-          <button class="chip" type="button" data-target="https://httpbin.org/status/204">
-            204 sample
-          </button>
         </div>
 
         <div id="status" class="status idle">准备好了，输入一个地址开始检测。</div>

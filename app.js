@@ -9,7 +9,7 @@ const metricReachable = document.querySelector("#metric-reachable");
 const metricStatus = document.querySelector("#metric-status");
 const metricElapsed = document.querySelector("#metric-elapsed");
 const metricUrl = document.querySelector("#metric-url");
-const metricLocation = document.querySelector("#metric-location");
+const targetLocation = document.querySelector("#target-location");
 const detailTarget = document.querySelector("#detail-target");
 const detailErrorType = document.querySelector("#detail-error-type");
 const detailError = document.querySelector("#detail-error");
@@ -46,6 +46,10 @@ function formatElapsed(ms) {
   return `${ms} ms`;
 }
 
+function formatServiceLocation(serviceLocation) {
+  return `（当前位置: ${serviceLocation?.displayLabel ?? "Local / Unknown"}）`;
+}
+
 function showResult(result, originalTarget) {
   resultEl.classList.remove("hidden");
   lastTarget = originalTarget;
@@ -55,7 +59,7 @@ function showResult(result, originalTarget) {
   metricStatus.textContent = result.statusCode ?? "-";
   metricElapsed.textContent = formatElapsed(result.elapsedMs);
   metricUrl.textContent = result.finalUrl ?? "-";
-  metricLocation.textContent = result.serviceLocation?.displayLabel ?? "-";
+  targetLocation.textContent = formatServiceLocation(result.serviceLocation);
   detailErrorType.textContent = result.errorType ?? "-";
   detailError.textContent = result.error ?? "-";
 
@@ -83,7 +87,7 @@ function showError(message, serviceLocation) {
   metricStatus.textContent = "-";
   metricElapsed.textContent = "-";
   metricUrl.textContent = "-";
-  metricLocation.textContent = serviceLocation?.displayLabel ?? "-";
+  targetLocation.textContent = formatServiceLocation(serviceLocation);
   detailTarget.textContent = lastTarget || "-";
   detailErrorType.textContent = "-";
   detailError.textContent = message;
@@ -169,6 +173,7 @@ resetButton.addEventListener("click", () => {
   targetInput.value = "";
   lastTarget = "";
   resultEl.classList.add("hidden");
+  targetLocation.textContent = formatServiceLocation();
   setStatus("准备好了，输入一个地址开始检测。", "idle");
   targetInput.focus();
 });
@@ -179,5 +184,6 @@ if (initialTarget) {
   targetInput.value = initialTarget;
   runCheck(initialTarget);
 } else {
+  targetLocation.textContent = formatServiceLocation();
   setStatus("准备好了，输入一个地址开始检测。", "idle");
 }

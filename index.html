@@ -25,14 +25,17 @@
         <form id="check-form" class="checker" autocomplete="off">
           <label for="target">目标地址</label>
           <div class="input-row">
-            <input
-              id="target"
-              name="target"
-              type="text"
-              placeholder="google.com 或 https://www.baidu.com"
-              inputmode="url"
-              spellcheck="false"
-            />
+            <div class="target-field">
+              <input
+                id="target"
+                name="target"
+                type="text"
+                placeholder="google.com 或 https://www.baidu.com"
+                inputmode="url"
+                spellcheck="false"
+              />
+              <span id="target-location" class="target-location">（当前位置: Local / Unknown）</span>
+            </div>
             <button id="submit-button" type="submit">开始检查</button>
           </div>
         </form>
@@ -72,10 +75,6 @@
             <article class="metric">
               <span>最终地址</span>
               <strong id="metric-url">-</strong>
-            </article>
-            <article class="metric">
-              <span>执行位置</span>
-              <strong id="metric-location">-</strong>
             </article>
           </div>
 

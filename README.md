@@ -38,7 +38,6 @@ The app uses:
 
 - `index.html` for the UI
 - `api/check.js` for the serverless checker
-- `vercel.json` to pin the Node runtime
 
 ## File map
 

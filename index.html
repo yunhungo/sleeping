@@ -8,6 +8,7 @@
       content="输入一个地址，快速检查是否可达，并查看响应时间和失败原因。"
     />
     <title>sleeping any where</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/styles.css" />
     <script type="module" src="/app.js"></script>
   </head>
@@ -28,7 +29,7 @@
               id="target"
               name="target"
               type="text"
-              placeholder="example.com 或 https://api.example.com"
+              placeholder="google.com 或 https://www.baidu.com"
               inputmode="url"
               spellcheck="false"
             />
@@ -37,8 +38,8 @@
         </form>
 
         <div class="chips" aria-label="Example targets">
-          <button class="chip" type="button" data-target="example.com">example.com</button>
-          <button class="chip" type="button" data-target="https://example.org">example.org</button>
+          <button class="chip" type="button" data-target="https://www.google.com">Google</button>
+          <button class="chip" type="button" data-target="https://www.baidu.com">Baidu</button>
           <button class="chip" type="button" data-target="https://httpbin.org/status/204">
             204 sample
           </button>

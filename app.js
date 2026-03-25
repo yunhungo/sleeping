@@ -95,7 +95,7 @@ function setLoading(isLoading) {
 
 async function runCheck(target) {
   setLoading(true);
-  setStatus("正在从 Vercel 检查外部可达性...", "loading");
+  setStatus("正在检查外部可达性...", "loading");
 
   try {
     const response = await fetch("/api/check", {

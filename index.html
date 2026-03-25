@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="从 Vercel 发起 HTTP 可达性检测，查看目标是否可访问、响应时间和失败原因。"
+    />
+    <title>sleeping any where</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <h1>sleeping any where</h1>
+        <p class="lede">
+          输入一个地址，看看能不能连上。
+        </p>
+      </section>
+
+      <section class="panel">
+        <form id="check-form" class="checker" autocomplete="off">
+          <label for="target">目标地址</label>
+          <div class="input-row">
+            <input
+              id="target"
+              name="target"
+              type="text"
+              placeholder="example.com 或 https://api.example.com"
+              inputmode="url"
+              spellcheck="false"
+            />
+            <button id="submit-button" type="submit">开始检查</button>
+          </div>
+        </form>
+
+        <div class="chips" aria-label="Example targets">
+          <button class="chip" type="button" data-target="example.com">example.com</button>
+          <button class="chip" type="button" data-target="https://vercel.com">vercel.com</button>
+          <button class="chip" type="button" data-target="https://httpbin.org/status/204">
+            204 sample
+          </button>
+        </div>
+
+        <div id="status" class="status idle">准备好了，输入一个地址开始检测。</div>
+
+        <section id="result" class="result hidden" aria-live="polite">
+          <div class="result-header">
+            <div>
+              <p class="result-label">检测结果</p>
+              <h2 id="result-title">等待检测</h2>
+            </div>
+            <div id="result-badge" class="badge neutral">idle</div>
+          </div>
+
+          <div class="metrics">
+            <article class="metric">
+              <span>可达性</span>
+              <strong id="metric-reachable">-</strong>
+            </article>
+            <article class="metric">
+              <span>HTTP 状态</span>
+              <strong id="metric-status">-</strong>
+            </article>
+            <article class="metric">
+              <span>耗时</span>
+              <strong id="metric-elapsed">-</strong>
+            </article>
+            <article class="metric">
+              <span>最终地址</span>
+              <strong id="metric-url">-</strong>
+            </article>
+          </div>
+
+          <div class="details">
+            <div>
+              <span class="detail-label">输入目标</span>
+              <p id="detail-target">-</p>
+            </div>
+            <div>
+              <span class="detail-label">错误分类</span>
+              <p id="detail-error-type">-</p>
+            </div>
+            <div>
+              <span class="detail-label">错误信息</span>
+              <p id="detail-error">-</p>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="copy-link" type="button">复制分享链接</button>
+            <button id="reset-button" type="button" class="ghost">清空</button>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
